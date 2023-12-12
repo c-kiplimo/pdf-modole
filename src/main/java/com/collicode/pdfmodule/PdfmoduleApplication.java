@@ -1,28 +1,20 @@
 package com.collicode.pdfmodule;
 
-import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
-import org.apache.pdfbox.pdmodel.encryption.StandardProtectionPolicy;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.pdmodel.font.PDFont;
-import org.apache.pdfbox.pdmodel.font.PDType0Font;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 //@SpringBootApplication
 public class PdfmoduleApplication {
 
-	public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
 
 //		File oldFile = new File("/home/collins/Documents/spring_boot_tutorial.pdf");
 //		PDDocument document = PDDocument.load(oldFile);
@@ -62,9 +54,10 @@ public class PdfmoduleApplication {
 //		document.close();
 //		System.out.println("Done");
 
-		PDDocument document = new PDDocument();
-		PDPage page = new PDPage();
-		document.addPage(page);
+        PDDocument document = new PDDocument();
+        PDRectangle pdRectangle = new PDRectangle(600, 900);
+        PDPage page = new PDPage(pdRectangle);
+        document.addPage(page);
 //		PDPageContentStream contentStream = new PDPageContentStream(document, page);
 //		contentStream.beginText();
 //		contentStream.setFont(PDType1Font.TIMES_ROMAN, 18);
@@ -89,7 +82,7 @@ public class PdfmoduleApplication {
 //		contentStream.drawImage(pdImageXObject, 25, 25);
 //       		contentStream.close();
 
-		int pageHeight =(int) page.getTrimBox().getHeight();
+	/*	int pageHeight =(int) page.getTrimBox().getHeight();
 		int pageWidth = (int) page.getTrimBox().getWidth();
 		PDPageContentStream contentStream = new PDPageContentStream(document, page);
 		contentStream.setStrokingColor(Color.DARK_GRAY);
@@ -122,12 +115,107 @@ public class PdfmoduleApplication {
 		}
 		contentStream.stroke();
 		contentStream.close();
+*/
+        String[] visitorDetails = {"Collins", "11", "Juja", "20-14-2022", "9:00 am to 4:00 pm"};
+        int pageWidth = (int) page.getTrimBox().getWidth();
+        int pageHeight = (int) page.getTrimBox().getHeight();
+
+        PDFont font = PDType1Font.HELVETICA_BOLD;
+        PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+        //background image
+        PDImageXObject pdImageXObject = PDImageXObject.createFromFile("/home/collins/Desktop/pdfmodule/src/main/resources/img/background.png", document);
+        contentStream.drawImage(pdImageXObject, 0, 0);
+        contentStream.fill();
+        //blue rect
+
+        contentStream.setNonStrokingColor(new Color(0, 191, 243));
+        contentStream.addRect(0, pageHeight - 90, pageWidth, 90);
+        contentStream.fill();
+
+        //birdImage
+        PDImageXObject birdImage = PDImageXObject.createFromFile("/home/collins/Desktop/pdfmodule/src/main/resources/img/bird.png", document);
+        contentStream.drawImage(birdImage, 0, pageHeight - 268);
+
+//belo bird image
+        contentStream.setNonStrokingColor(new Color(46, 49, 146));
+        contentStream.addRect(0, pageHeight - 278, pageWidth, 10);
+        contentStream.fill();
+// for button rect
+        contentStream.setNonStrokingColor(new Color(20, 187, 180));
+        contentStream.addRect(0, 0, pageWidth, 60);
+        contentStream.fill();
+// for deer image
+        PDImageXObject deerImage = PDImageXObject.createFromFile("/home/collins/Desktop/pdfmodule/src/main/resources/img/deer.png", document);
+        contentStream.drawImage(deerImage, 10, 60, 171, 200);
+// for tiger image
+
+        PDImageXObject tigerImage = PDImageXObject.createFromFile("/home/collins/Desktop/pdfmodule/src/main/resources/img/tiger.png", document);
+        contentStream.drawImage(tigerImage, 270, 62, 314, 146);
+
+// natianal park
+        contentStream.beginText();
+        contentStream.setFont(font, 40);
+        contentStream.setNonStrokingColor(Color.WHITE);
+        String text = "CORBETT NATIONAL PARK";
+
+        float width = font.getStringWidth(text) / 1000 * 40;
+        contentStream.newLineAtOffset((pageWidth - width) / 2, pageHeight - 55);
+        contentStream.showText(text);
+        contentStream.endText();
+// visitor pass
+        contentStream.beginText();
+        contentStream.setFont(font, 40);
+        contentStream.setNonStrokingColor(Color.BLACK);
+        String text1 = "VISITOR PASS";
+
+        float width1 = font.getStringWidth(text1) / 1000 * 40;
+        contentStream.newLineAtOffset((pageWidth - width1) / 2, pageHeight - 330);
+        contentStream.showText(text1);
+        contentStream.endText();
+//Details head
+        contentStream.beginText();
+        contentStream.setFont(font, 30);
+        contentStream.setNonStrokingColor(Color.BLACK);
+        contentStream.setLeading(45);
+        contentStream.newLineAtOffset(200, pageHeight - 400);
+
+        String[] detailsArray = {"Name     ", "Age ", "City ", "Date", "Time"};
+        for (String detail : detailsArray) {
+            contentStream.showText(detail);
+            contentStream.newLine();
+        }
+        contentStream.endText();
 
 
-		document.save("/home/collins/Desktop/pdfmodule/my_first_pdf.pdf");
-		document.close();
-		System.out.println("Done");
-	}
+        contentStream.beginText();
+        contentStream.setFont(font, 30);
+        contentStream.setNonStrokingColor(Color.BLACK);
+        contentStream.setLeading(45);
+        contentStream.newLineAtOffset(200, pageHeight - 400);
+
+
+        for (String visitorDetail : visitorDetails) {
+            contentStream.showText("            :     " + visitorDetail);
+            contentStream.newLine();
+        }
+        contentStream.endText();
+//stay away array
+        contentStream.beginText();
+        contentStream.setFont(font, 40);
+        contentStream.setNonStrokingColor(Color.WHITE);
+        String text2 = "Stay away from the wild animals";
+        float width2 = font.getStringWidth(text2) / 1000 * 40;
+        contentStream.newLineAtOffset((pageWidth - width2) / 2, 20);
+        contentStream.showText(text2);
+        contentStream.endText();
+
+
+        contentStream.close();
+        document.save("/home/collins/Desktop/pdfmodule/my_first_pdf.pdf");
+        document.close();
+        System.out.println("Done");
+    }
 
 }
 
